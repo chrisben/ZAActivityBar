@@ -35,6 +35,7 @@
 
 @property BOOL isVisible;
 @property NSUInteger offset;
+@property NSUInteger duration;
 
 @property (nonatomic, strong, readonly) NSTimer *fadeOutTimer;
 @property (nonatomic, strong, readonly) UIWindow *overlayWindow;
@@ -45,7 +46,7 @@
 
 - (void) showWithStatus:(NSString *)status forAction:(NSString *)action;
 - (void) setStatus:(NSString*)string;
-- (void) showImage:(UIImage*)image status:(NSString*)status duration:(NSTimeInterval)duration forAction:(NSString *)action;
+- (void) showImage:(UIImage*)image status:(NSString*)status forAction:(NSString *)action;
 
 - (void) dismissAll;
 - (void) dismissForAction:(NSString *)action;
@@ -76,6 +77,11 @@
 {
     CGRect screenRect = [[UIScreen mainScreen] bounds];
     [ZAActivityBar sharedView].offset = screenRect.size.height - 120.0f;
+}
+
++ (void) setDuration:(NSUInteger)duration
+{
+    [ZAActivityBar sharedView].duration = duration;
 }
 
 ///////////////////////////////////////////////////////////////
@@ -242,11 +248,10 @@
 + (void)showImage:(UIImage *)image status:(NSString *)status forAction:(NSString *)action {
     [[ZAActivityBar sharedView] showImage:image
                                    status:status
-                                 duration:1.0
                                 forAction:action];
 }
 
-- (void)showImage:(UIImage*)image status:(NSString*)status duration:(NSTimeInterval)duration forAction:(NSString *)action {
+- (void)showImage:(UIImage*)image status:(NSString*)status forAction:(NSString *)action {
     
     [self addAction:action withStatus:status];
     
@@ -267,7 +272,7 @@
         [self setStatus:status];
         [self.spinnerView stopAnimating];
         
-        self.fadeOutTimer = [NSTimer scheduledTimerWithTimeInterval:duration
+        self.fadeOutTimer = [NSTimer scheduledTimerWithTimeInterval:self.duration
                                                              target:self
                                                            selector:@selector(dismissFromTimer:)
                                                            userInfo:action
@@ -508,6 +513,8 @@
         _isVisible = NO;
         _actionArray = [NSMutableArray new];
         _actionDict = [NSMutableDictionary new];
+        self.duration = 1.0f;
+        self.offset = 0.0f;
     }
 	
     return self;
